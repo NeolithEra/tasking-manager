@@ -3,7 +3,7 @@ import datetime
 import dateutil.parser
 from server import db
 from sqlalchemy import desc, text
-from server.models.dtos.user_dto import UserDTO, UserMappedProjectsDTO, MappedProject, UserFilterDTO, Pagination, \
+from server.models.dtos.user_dto import UserDTO, UserMappedProjectsDTO, UserRecommendedProjectsDTO, MappedProject, UserFilterDTO, Pagination, \
     UserSearchQuery, UserSearchDTO, ProjectParticipantUser, ListedUser
 from server.models.postgis.licenses import License, users_licenses_table
 from server.models.postgis.project_info import ProjectInfo
@@ -114,7 +114,7 @@ class User(db.Model):
 
 
     @staticmethod
-    def filter_users(user_filter: str, project_id: int, page: int, 
+    def filter_users(user_filter: str, project_id: int, page: int,
                      is_project_manager:bool=False) -> UserFilterDTO:
         """ Finds users that matches first characters, for auto-complete.
 
@@ -130,7 +130,7 @@ class User(db.Model):
             query = query.filter(User.role.in_([UserRole.ADMIN.value, UserRole.PROJECT_MANAGER.value]))
 
         results = query.paginate(page, 20, True)
-            
+
         if results.total == 0:
             raise NotFound()
 
@@ -215,6 +215,11 @@ class User(db.Model):
             mapped_projects_dto.mapped_projects.append(mapped_project)
 
         return mapped_projects_dto
+
+    @staticmethod
+    def get_recommended_projects(user_id: int, preferred_locale: str) -> UserRecommendedProjectsDTO:
+        """ Get recommended projects for a user """
+        return User.get_mapped_projects(user_id, preferred_locale)
 
     def set_user_role(self, role: UserRole):
         """ Sets the supplied role on the user """

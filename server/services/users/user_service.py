@@ -175,7 +175,7 @@ class UserService:
 
     @staticmethod
     @cached(user_filter_cache)
-    def filter_users(username: str, project_id: int, 
+    def filter_users(username: str, project_id: int,
                      page: int, is_project_manager: bool = False) -> UserFilterDTO:
         """ Gets paginated list of users, filtered by username, for autocomplete """
         return User.filter_users(username, project_id, page, is_project_manager)
@@ -226,6 +226,12 @@ class UserService:
         """ Gets all projects a user has mapped or validated on """
         user = UserService.get_user_by_username(user_name)
         return User.get_mapped_projects(user.id, preferred_locale)
+
+    @staticmethod
+    def get_recommended_projects(user_name: str, preferred_locale: str):
+        """ Gets all projects a user has mapped or validated on """
+        user = UserService.get_user_by_username(user_name)
+        return User.get_recommended_projects(user.id, preferred_locale)
 
     @staticmethod
     def add_role_to_user(admin_user_id: int, username: str, role: str):
