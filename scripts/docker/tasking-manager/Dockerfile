@@ -12,25 +12,23 @@ RUN apt-get update \
 # Upgrade pip
 RUN pip install --upgrade pip
 
-ARG branch=develop
+# Get the Tasking Manager
+ARG branch=feature/replace-frontend
 RUN git clone --depth=1 git://github.com/hotosm/tasking-manager.git \
 	--branch $branch /usr/src/app
 
-## API/SERVER CONFIGURATION
+## SETUP BACKEND
 
 # Add and install Python modules
 RUN pip install --no-cache-dir -r requirements.txt
 
-## CLIENT CONFIGURATION
+## SETUP FRONTEND
 
-# Install nodejs.
+# Install nodejs
 RUN apt-get install -y nodejs npm
 
-RUN npm install -g gulp-cli karma karma-jasmine karma-chrome-launcher
-
-RUN cd client && npm link gulp && \
-	npm install closure-util --save && \
-	npm install && gulp build
+# Build frontend
+RUN cd frontend && npm install && npm run build
 
 EXPOSE 5000
 CMD ["python", "manage.py", "runserver", "-h", "0.0.0.0"]
